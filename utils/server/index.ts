@@ -55,22 +55,28 @@ export const OpenAIStream = async (
   // Using this here in edge runtime ends with a [TypeError: adapter is not a function]
   const hl = new Humanloop({
     apiKey: process.env.HUMANLOOP_API_KEY,
+    useFetch: true, // useFetch must be "true"
     // Would like this
     // openaiApiKey: process.env.OPENAI_API_KEY,
     // anthropicApiKey: process.env.ANTHROPIC_API_KEY,
   });
 
-  const hlResponse = await hl.chat({
+  const hlResponse = await hl.generate({
     project: 'ts-sdk-test',
-    messages: [
-      {
-        role: 'system',
-        content: systemPrompt,
-      },
-      ...messages,
-    ],
+    // messages: [
+    //   {
+    //     role: 'system',
+    //     content: systemPrompt,
+    //   },
+    //   ...messages,
+    // ],
+    inputs: {
+      prompt: 'hello',
+    },
+
     model_config: {
       model: model.id,
+      prompt_template: 'System: {{prompt}}',
       max_tokens: 1000,
       temperature: 1,
     },
@@ -79,7 +85,7 @@ export const OpenAIStream = async (
       openai: key ? key : process.env.OPENAI_API_KEY,
     },
   });
-  console.log(hlResponse);
+  console.log(hlResponse.data);
 
   if (res.status !== 200) {
     const statusText = res.statusText;
